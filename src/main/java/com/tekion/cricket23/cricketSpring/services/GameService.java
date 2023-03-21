@@ -1,15 +1,15 @@
 package com.tekion.cricket23.cricketSpring.services;
 
-import com.tekion.cricket23.cricketSpring.beans.teambeans.Team;
-import com.tekion.cricket23.cricketSpring.dtos.*;
-
-import java.util.List;
+import com.tekion.cricket23.cricketSpring.dtos.reqdtos.GameDto;
+import com.tekion.cricket23.cricketSpring.dtos.reqdtos.TeamDto;
+import org.springframework.http.ResponseEntity;
 
 public interface GameService {
-    String initiateGame(GameDto gameDto);
-    Team saveTeamData(TeamDto teamDto);
-    List<String> saveAllPlayerData(List<PlayerDto> playerDtos, String teamName);
-    String getMatchStats(MatchReqDto matchReqDto); //todo think about this responsibility
-    String getPlayerStats(PlayerStatsReqDto reqDto); //todo think about this responsibility
-    String deleteMatch(MatchReqDto matchReqDto);
+    ResponseEntity<Object> initiateGame(GameDto gameDto);
+    ResponseEntity<Object> saveTeamData(TeamDto teamDto);
+    ResponseEntity<Object> getMatchStats(String matchId); //todo think about this responsibility
+    ResponseEntity<Object> getPlayerStats(String playerId, String matchId); //todo think about this responsibility
+    ResponseEntity<Object> deleteTeam(String id);
+    ResponseEntity<Object> deleteMatch(String id);
+    ResponseEntity<Object> deleteSeries(String id);
 }

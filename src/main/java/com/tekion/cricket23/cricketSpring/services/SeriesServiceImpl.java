@@ -9,11 +9,13 @@ import com.tekion.cricket23.cricketSpring.utils.CricketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SeriesServiceImpl implements SeriesService{
-    SeriesRepository seriesRepo;
-    MatchService matchService;
-    TeamService teamService;
+    private final SeriesRepository seriesRepo;
+    private final MatchService matchService;
+    private final TeamService teamService;
 
     @Autowired
     public SeriesServiceImpl(SeriesRepository seriesRepository, MatchServiceImpl matchService,
@@ -43,55 +45,79 @@ public class SeriesServiceImpl implements SeriesService{
             Match newMatch = matchService.startMatch(team1Id,team2Id,totalOvers);
             postMatchSeriesUpdation(series,newMatch);
             if(seriesEndCheck(series,matchCount)){
+                postSeriesStats(series);
                 break;
             }
         }
         return series.getSeriesResult();
     }
 
+    private void postSeriesStats(Series series) {
+        System.out.println("Series Ended!");
+        System.out.println(series.getSeriesResult());
+    }
+
     public void postMatchSeriesUpdation(Series currSeries,Match newMatch) {
         currSeries.incrementTeamWins(newMatch.getWinner());
         MatchDao matchDao = new MatchDao(newMatch.getMatchId(),newMatch.getMatchResult());
         currSeries.addMatch(matchDao);
-        seriesRepo.save(currSeries);
         postMatchSeriesStats(currSeries);
     }
 
-    public boolean seriesEndCheck(Series currSeries, int matchCount) {
+    private boolean seriesEndCheck(Series currSeries, int matchCount) {
         int totalMatches = currSeries.getTotalMatches();
         int team1Wins = currSeries.getTeam1Wins();
         int team2Wins = currSeries.getTeam2Wins();
-        String result = "";
-        if(team1Wins > totalMatches/2 || team2Wins > totalMatches){
-            if(team1Wins > totalMatches/2){
-                result = currSeries.getTeam1Name() + " beat " + currSeries.getTeam2Name() + " by "
-                        + team1Wins + "-" + team2Wins;
-            } else {
-                result = currSeries.getTeam2Name() + " beat " + currSeries.getTeam1Name() + " by "
-                        + team2Wins + "-" + team1Wins;
-            }
-            currSeries.setSeriesResult(result);
+        if(team1Wins > totalMatches/2 || team2Wins > totalMatches/2){
+            calculateSeriesResult(currSeries,team1Wins,team2Wins);
             return true;
         }
-
         if(totalMatches == matchCount){
-            if(team1Wins == team2Wins){
-                currSeries.setSeriesResult("Series tied between " + currSeries.getTeam1Name() + " and "
-                        + currSeries.getTeam2Name() + " by " + team1Wins + "-" + team2Wins);
-                return true;
-            }
+            calculateSeriesResult(currSeries,team1Wins,team2Wins);
+            return true;
         }
+        seriesRepo.save(currSeries);
         return false;
     }
 
-    public void preMatchLog(Series series, int matchCount) {
+    private void calculateSeriesResult(Series currSeries, int team1Wins, int team2Wins) {
+        int totalMatches = currSeries.getTotalMatches();
+        String result;
+        if(team1Wins > totalMatches/2){
+            result = currSeries.getTeam1Name() + " beat " + currSeries.getTeam2Name() + " by "
+                    + team1Wins + "-" + team2Wins;
+        } else if(team2Wins > totalMatches/2){
+            result = currSeries.getTeam2Name() + " beat " + currSeries.getTeam1Name() + " by "
+                    + team2Wins + "-" + team1Wins;
+        } else {
+            result = "Series tied between " + currSeries.getTeam1Name() + " and "
+                    + currSeries.getTeam2Name() + " by " + team1Wins + "-" + team2Wins;
+        }
+        currSeries.setSeriesResult(result);
+        seriesRepo.save(currSeries);
+    }
+
+    private void preMatchLog(Series series, int matchCount) {
         System.out.println("Match " + matchCount + " | " +
                 series.getTeam1Name() + " vs " + series.getTeam2Name());
     }
 
-    public void postMatchSeriesStats(Series series) {
+    private void postMatchSeriesStats(Series series) {
         System.out.println(series.getTeam1Name() + " " + series.getTeam1Wins() + " - "
                 + series.getTeam2Name() + " " + series.getTeam2Wins());
         CricketUtils.printBlankLine();
+    }
+
+    public boolean checkIfSeriesExists(String seriesId) {
+        return seriesRepo.findById(seriesId).isPresent();
+    }
+
+    public void deleteSeriesData(String seriesId){
+        Series series = seriesRepo.findById(seriesId).orElse(null);
+        List<MatchDao> matches = series.getMatches();
+        for(MatchDao match : matches){
+            matchService.deleteMatchData(match.getMatchId());
+        }
+        seriesRepo.deleteById(seriesId);
     }
 }

@@ -84,4 +84,18 @@ public class Inning {
     public LinkedHashMap<String,PlayerBowlingStats> getBowlingStats(){
         return bowlingStats;
     }
+
+    @Override
+    public String toString() {
+        return "Inning{" +
+                "runsScored=" + runsScored +
+                ", wicketsFell=" + wicketsFell +
+                ", oversBowled=" + oversBowled +
+                ", excessBallsBowled=" + excessBallsBowled +
+                ", battingTeam='" + battingTeam + '\'' +
+                ", bowlingTeam='" + bowlingTeam + '\'' +
+                ", battingStats=" + battingStats +
+                ", bowlingStats=" + bowlingStats +
+                '}';
+    }
 }

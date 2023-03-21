@@ -28,6 +28,7 @@ public class Player {
     public String getName() {
         return this.playerName;
     }
+    public void setName(String name) { this.playerName = name; } //NOTE remove after test over
     public String getPlayerType() {
         return playerType;
     }
@@ -38,5 +39,15 @@ public class Player {
     }
     public double[] getHIT_PROBABILITY() {
         return HIT_PROBABILITY;
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "id='" + id + '\'' +
+                ", playerName='" + playerName + '\'' +
+                ", playerType='" + playerType + '\'' +
+                ", teamName='" + teamName + '\'' +
+                '}';
     }
 }

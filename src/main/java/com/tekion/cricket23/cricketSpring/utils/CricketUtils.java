@@ -1,9 +1,6 @@
 package com.tekion.cricket23.cricketSpring.utils;
 
-import java.util.Scanner;
-
 public final class CricketUtils {
-    private final static Scanner s = new Scanner(System.in);
 
     public static int getBallOutcome(double probability, double[] HIT_PROBABILITY) {
         if (probability <= HIT_PROBABILITY[0]) {
@@ -21,14 +18,6 @@ public final class CricketUtils {
         } else {
             return 7;
         }
-    }
-
-    public static String getNameInput(){
-        return s.next();
-    }
-
-    public static int getNumberInput() {
-        return s.nextInt();
     }
 
     public static String printBlankLine(){

@@ -1,12 +1,11 @@
 package com.tekion.cricket23.cricketSpring.controller;
 
-import com.tekion.cricket23.cricketSpring.beans.teambeans.Team;
-import com.tekion.cricket23.cricketSpring.dtos.*;
+import com.tekion.cricket23.cricketSpring.dtos.reqdtos.GameDto;
+import com.tekion.cricket23.cricketSpring.dtos.reqdtos.TeamDto;
 import com.tekion.cricket23.cricketSpring.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GameController {
@@ -17,27 +16,36 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @PostMapping("/teams")
-    public Team saveTeam(@RequestBody TeamDto teamDto){
+    @PostMapping("/team")
+    public ResponseEntity<Object> saveTeam(@RequestBody TeamDto teamDto){
         return gameService.saveTeamData(teamDto);
     }
 
-    //todo take dto
-    @PostMapping("/startGame")
-    public String startGame(@RequestBody GameDto gameDto) {
+    @PostMapping("/startgame")
+    public ResponseEntity<Object> startGame(@RequestBody GameDto gameDto) {
         return gameService.initiateGame(gameDto);
     }
 
-    @PostMapping("/fetchMatchDetails")
-    public Object getMatchDetails(@RequestBody MatchReqDto matchReqDto) {
-        return gameService.getMatchStats(matchReqDto);
+    @GetMapping("/match/{matchId}")
+    public ResponseEntity<Object> getMatchDetails(@PathVariable String matchId) {
+        return gameService.getMatchStats(matchId);
     }
 
-    @PostMapping("/playerStatsInAMatch")
-    public String getPlayerStatsInAMatch(@RequestBody PlayerStatsReqDto reqDto) {
-        return gameService.getPlayerStats(reqDto);
+    @GetMapping("/player-stats/{playerId}/match/{matchId}")
+    public ResponseEntity<Object> getPlayerStatsInAMatch(@PathVariable String playerId, @PathVariable String matchId) {
+        return gameService.getPlayerStats(playerId,matchId);
     }
 
-    @PostMapping("/deleteMatchWithData")
-    public String deleteMatch(@RequestBody MatchReqDto matchReqDto){ return  gameService.deleteMatch(matchReqDto); }
+    @DeleteMapping("/series/{seriesId}")
+    public ResponseEntity<Object> deleteSeries(@PathVariable String seriesId){
+        return gameService.deleteSeries(seriesId);
+    }
+
+    @DeleteMapping("/match/{matchId}")
+    public ResponseEntity<Object> deleteMatch(@PathVariable String matchId){
+        return  gameService.deleteMatch(matchId);
+    }
+
+    @DeleteMapping("/team/{teamId}")
+    public ResponseEntity<Object> deleteTeam(@PathVariable String teamId){ return gameService.deleteTeam(teamId); }
 }

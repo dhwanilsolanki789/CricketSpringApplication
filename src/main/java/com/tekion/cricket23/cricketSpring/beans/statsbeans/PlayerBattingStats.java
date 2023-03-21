@@ -1,9 +1,6 @@
 package com.tekion.cricket23.cricketSpring.beans.statsbeans;
 
-import org.springframework.data.annotation.Transient;
-
 public class PlayerBattingStats {
-    @Transient
     private String playerName;
     private int runs;
     private int ballsPlayed;

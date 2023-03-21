@@ -10,9 +10,11 @@ public interface TeamService {
     Team createTeam(String teamName, List<String> playerIds);
     Team getTeamById(String id);
     Team getTeamByName(String name);
+    boolean checkIfTeamExists(String teamId);
     Player[] assignOpeners(Team battingTeam);
     Bowler assignBowler(Team bowlingTeam, int over);
     Player assignBatter(Team battingTeam, int wicketsFell);
     List<Player> getPlayers(Team team);
     List<Player> getBowlers(Team team);
+    void deleteTeam(String teamId);
 }

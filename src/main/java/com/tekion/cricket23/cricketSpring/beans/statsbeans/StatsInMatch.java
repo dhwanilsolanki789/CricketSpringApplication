@@ -17,4 +17,12 @@ public class StatsInMatch {
     public PlayerBowlingStats getBowlingStats() {
         return bowlingStats;
     }
+
+    @Override
+    public String toString() {
+        return "StatsInMatch{" +
+                "battingStats=" + battingStats +
+                ", bowlingStats=" + bowlingStats +
+                '}';
+    }
 }

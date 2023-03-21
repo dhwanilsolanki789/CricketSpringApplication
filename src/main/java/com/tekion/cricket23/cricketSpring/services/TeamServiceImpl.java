@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Service
 public class TeamServiceImpl implements TeamService{
-    private TeamRepository teamRepo;
-    private PlayerService playerService;
+    private final TeamRepository teamRepo;
+    private final PlayerService playerService;
     private static final int BATTER_COUNT = 6;
     private static final int BOWLER_COUNT = 5;
 
@@ -33,10 +33,11 @@ public class TeamServiceImpl implements TeamService{
     }
 
     public Team getTeamByName(String teamName){
-        Team foundTeam =  teamRepo.getTeamByTeamName(teamName);
-        if(foundTeam != null){
-            return foundTeam;
-        } else throw new RuntimeException("Team not found");
+        return teamRepo.getTeamByTeamName(teamName);
+    }
+
+    public boolean checkIfTeamExists(String teamId) {
+        return teamRepo.findById(teamId).isPresent();
     }
 
     public Player[] assignOpeners(Team battingTeam) {
@@ -71,5 +72,12 @@ public class TeamServiceImpl implements TeamService{
             bowlers.add(playerService.getPlayerById(id));
         }
         return bowlers;
+    }
+
+    public void deleteTeam(String teamId){
+        Team team = getTeamById(teamId);
+        List<String> playerIds = team.getPlayerIds();
+        playerService.deleteAllGivenPlayers(playerIds);
+        teamRepo.deleteById(teamId);
     }
 }

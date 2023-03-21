@@ -3,22 +3,19 @@ package com.tekion.cricket23.cricketSpring.services;
 import com.tekion.cricket23.cricketSpring.beans.matchbeans.*;
 import com.tekion.cricket23.cricketSpring.beans.statsbeans.*;
 import com.tekion.cricket23.cricketSpring.beans.teambeans.*;
+import com.tekion.cricket23.cricketSpring.dtos.resdtos.InningRes;
 import com.tekion.cricket23.cricketSpring.utils.CricketUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ScoreboardServiceImpl implements ScoreboardService{
-    TeamService teamService;
-    StatsService statsService;
+    private final StatsService statsService;
 
     @Autowired
-    public ScoreboardServiceImpl(TeamService teamService, StatsService statsService){
-        this.teamService = teamService;
+    public ScoreboardServiceImpl(StatsService statsService){
         this.statsService = statsService;
     }
 
@@ -52,7 +49,7 @@ public class ScoreboardServiceImpl implements ScoreboardService{
         logWicketStats(currInning,currBowler.getName());
     }
 
-    public void updatePlayers(Inning currInning, Player batter, Bowler bowler, int runs, boolean wicketFell) {
+    private void updatePlayers(Inning currInning, Player batter, Bowler bowler, int runs, boolean wicketFell) {
         PlayerBattingStats batterStats = currInning.getBatterStats(batter.getPlayerId());
         batterStats.updateBattingStats(runs);
         PlayerBowlingStats bowlerStats = currInning.getBowlerStats(bowler.getPlayerId());
@@ -78,7 +75,7 @@ public class ScoreboardServiceImpl implements ScoreboardService{
        statsService.storeAllPlayersStats(scoreboard,teams);
     }
 
-    public void logWicketStats(Inning currInning, String currBowlerName){
+    private void logWicketStats(Inning currInning, String currBowlerName){
         System.out.println(currInning.getBattingTeam() + " are " + (currInning.getWicketsFell())
                 + " down as " + currBowlerName + " strikes!");
     }
@@ -101,12 +98,12 @@ public class ScoreboardServiceImpl implements ScoreboardService{
                 + " (" + currInning.getOversBowled() + "." + currInning.getExcessBallsbowled() + " Overs)");
     }
 
-    public void logMatchTarget(Inning inning){
+    private void logMatchTarget(Inning inning){
         System.out.println((inning.getRunsScored() + 1) + " is the target for " + inning.getBattingTeam());
         CricketUtils.printDottedLine();
     }
 
-    public void printInningStats(Inning inning){
+    private void printInningStats(Inning inning){
         System.out.println(inning.getBattingTeam() + " Innings - "
                 + inning.getRunsScored() + "/" + inning.getWicketsFell()
                 + " (" + inning.getOversBowled() + "." + inning.getExcessBallsbowled()+ " Overs)");
@@ -118,7 +115,7 @@ public class ScoreboardServiceImpl implements ScoreboardService{
         CricketUtils.printDottedLine();
     }
 
-    public String printInningBattingStats(Inning inning) {
+    private void printInningBattingStats(Inning inning) {
         String battingStatsString = "";
         LinkedHashMap<String,PlayerBattingStats> battingStats = inning.getBattingStats();
         Set<String> batterIds = battingStats.keySet();
@@ -127,10 +124,9 @@ public class ScoreboardServiceImpl implements ScoreboardService{
             battingStatsString += batterStats.getPlayerName() + " " + batterStats.toString() + "\n";
         }
         System.out.println(battingStatsString);
-        return battingStatsString;
     }
 
-    public String printInningBowlingStats(Inning inning) {
+    private void printInningBowlingStats(Inning inning) {
         String bowlingStatsString = "";
         LinkedHashMap<String,PlayerBowlingStats> bowlingStats = inning.getBowlingStats();
         Set<String> bowlerIds = bowlingStats.keySet();
@@ -139,29 +135,42 @@ public class ScoreboardServiceImpl implements ScoreboardService{
             bowlingStatsString += bowlerStats.getPlayerName() + " " + bowlerStats.toString() + "\n";
         }
         System.out.println(bowlingStatsString);
-        return bowlingStatsString;
     }
 
-    public String getMatchDetails(Scoreboard scoreboard){
-        String matchDetails = "Inning 1 { \n";
-        matchDetails += getInningString(scoreboard.getInning(1));
-        matchDetails += "}\nInning 2 { \n";
-        matchDetails += getInningString(scoreboard.getInning(2)) + "}\n";
-        return matchDetails;
+    public List<InningRes> getMatchDetails(Scoreboard scoreboard){
+        List<InningRes> inningsRes = new ArrayList<>();
+        inningsRes.add(getInningRes(scoreboard.getInning(1)));
+        inningsRes.add(getInningRes(scoreboard.getInning(2)));
+        return inningsRes;
     }
 
-    public String getInningString(Inning inning){
-        String inningString = "RunsScored : " + inning.getRunsScored() + "\n"
-                + "WicketsFell : " + inning.getWicketsFell() + "\n"
-                + "OversBowled : " + inning.getOversBowled() + "\n"
-                + "ExcessBallsBowled : " + inning.getExcessBallsbowled() + "\n"
-                + "BattingTeam : " + inning.getBattingTeam() + "\n"
-                + "BowlingTeam : " + inning.getBowlingTeam() + "\n"
-                + "InningBattingStats : {\n";
-        inningString += printInningBattingStats(inning);
-        inningString += "}\nInningBowlingStats : {\n";
-        inningString += printInningBowlingStats(inning) + "}\n";
-        return inningString;
+    private InningRes getInningRes(Inning inning){
+        InningRes inningRes = new InningRes(inning.getRunsScored(), inning.getWicketsFell(),
+                                inning.getOversBowled(), inning.getExcessBallsbowled(),
+                                inning.getBattingTeam(), inning.getBowlingTeam());
+        inningRes.setBattingStats(getInningBattingStatsRes(inning));
+        inningRes.setBowlingStats(getInningBowlingStatsRes(inning));
+        return inningRes;
+    }
+
+    private Map<String, String> getInningBattingStatsRes(Inning inning) {
+        Map<String,String> battingStatsRes = new LinkedHashMap<>();
+        LinkedHashMap<String,PlayerBattingStats> battingStats = inning.getBattingStats();
+        for(String batterId : battingStats.keySet()){
+            PlayerBattingStats playerBattingStats = battingStats.get(batterId);
+            battingStatsRes.put(playerBattingStats.getPlayerName(),playerBattingStats.toString());
+        }
+        return battingStatsRes;
+    }
+
+    private Map<String, String> getInningBowlingStatsRes(Inning inning) {
+        Map<String,String> bowlingStatsRes = new LinkedHashMap<>();
+        LinkedHashMap<String,PlayerBowlingStats> bowlingStats = inning.getBowlingStats();
+        for(String bowlerId : bowlingStats.keySet()){
+            PlayerBowlingStats playerBowlingStats = bowlingStats.get(bowlerId);
+            bowlingStatsRes.put(playerBowlingStats.getPlayerName(),playerBowlingStats.toString());
+        }
+        return bowlingStatsRes;
     }
 
     public void printScoreboard(Scoreboard scoreboard){

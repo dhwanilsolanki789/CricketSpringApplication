@@ -1,4 +1,4 @@
-package com.tekion.cricket23.cricketSpring.dtos;
+package com.tekion.cricket23.cricketSpring.dtos.reqdtos;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -11,7 +11,6 @@ public class PlayerDto {
     public String getPlayerName() {
         return playerName;
     }
-
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
@@ -19,7 +18,6 @@ public class PlayerDto {
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
     }

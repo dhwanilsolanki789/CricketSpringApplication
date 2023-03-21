@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
-    PlayerRepository playerRepo;
+    private final PlayerRepository playerRepo;
 
     @Autowired
     public PlayerServiceImpl(PlayerRepository playerRepository){
@@ -23,11 +23,10 @@ public class PlayerServiceImpl implements PlayerService {
         Player newPlayer;
         if(type.equals("Batter")){
             newPlayer = new Batter(playerName,type,teamName);
-            newPlayer = playerRepo.save(newPlayer);
         } else {
             newPlayer = new Bowler(playerName,type,teamName);
-            newPlayer = playerRepo.save(newPlayer);
         }
+        newPlayer = playerRepo.save(newPlayer);
         return newPlayer;
     }
 
@@ -36,9 +35,18 @@ public class PlayerServiceImpl implements PlayerService {
         return playerObj.orElseThrow(() -> new EmptyResultDataAccessException("Player not found!", 50));
     }
 
+    public boolean checkIfPlayerExists(String playerId) {
+        return playerRepo.findById(playerId).isPresent();
+    }
+
     public int playBall(Player batter) {
         double probability = Math.random();
         int ballOutcome = CricketUtils.getBallOutcome(probability, batter.getHIT_PROBABILITY());
+        printBallOutcome(ballOutcome,batter);
+        return ballOutcome;
+    }
+
+    private void printBallOutcome(int ballOutcome, Player batter) {
         if (ballOutcome == 0) {
             System.out.println("Good delivery! Dot ball.");
         } else if (ballOutcome == 1) {
@@ -54,6 +62,11 @@ public class PlayerServiceImpl implements PlayerService {
         } else if (ballOutcome == 7) {
             System.out.println("Wicket! " + batter.getName() + " had to go back.");
         }
-        return ballOutcome;
+    }
+
+    public void deleteAllGivenPlayers(List<String> playerIds){
+        for(String playerId : playerIds){
+            playerRepo.deleteById(playerId);
+        }
     }
 }

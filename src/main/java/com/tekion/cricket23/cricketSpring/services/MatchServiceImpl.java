@@ -2,22 +2,22 @@ package com.tekion.cricket23.cricketSpring.services;
 
 import com.tekion.cricket23.cricketSpring.beans.matchbeans.*;
 import com.tekion.cricket23.cricketSpring.beans.teambeans.*;
+import com.tekion.cricket23.cricketSpring.dtos.resdtos.InningRes;
+import com.tekion.cricket23.cricketSpring.dtos.resdtos.MatchRes;
 import com.tekion.cricket23.cricketSpring.utils.CricketUtils;
 import com.tekion.cricket23.cricketSpring.repostiories.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class MatchServiceImpl implements MatchService{
-    MatchRepository matchRepo;
-    ScoreboardService scoreboardService;
-    TeamService teamService;
-    PlayerService playerService;
-    StatsService statsService;
+    private final MatchRepository matchRepo;
+    private final ScoreboardService scoreboardService;
+    private final TeamService teamService;
+    private final PlayerService playerService;
+    private final StatsService statsService;
 
     @Autowired
     public MatchServiceImpl(MatchRepository matchRepository, ScoreboardService scoreboardService,
@@ -31,29 +31,29 @@ public class MatchServiceImpl implements MatchService{
 
 
     public Match createMatch(String team1Id, String team2Id, int totalOvers) {
-        Match newMatch = new Match(team1Id, team2Id, totalOvers);
+        final Match newMatch = new Match(team1Id, team2Id, totalOvers);
         return matchRepo.save(newMatch);
     }
 
 
     public Match startMatch(String team1Id, String team2Id, int totalOvers) {
-        Match match = createMatch(team1Id, team2Id, totalOvers);
+        final Match match = createMatch(team1Id, team2Id, totalOvers);
         playMatch(match);
         return match;
     }
 
-    public Team[] initiateMatch(Match currMatch) {
-        Team[] teamOrder = toss(currMatch);
-        Scoreboard scoreboard = scoreboardService.createScoreboard(currMatch.getMatchId());
+    private Team[] initiateMatch(Match currMatch) {
+        final Team[] teamOrder = toss(currMatch);
+        final Scoreboard scoreboard = scoreboardService.createScoreboard(currMatch.getMatchId());
         currMatch.setScoreboard(scoreboard);
         return teamOrder;
     }
 
-    public Team[] toss(Match currMatch) {
+    private Team[] toss(Match currMatch) {
         int toss = (int) (Math.random() * 2);
-        Team team1 = teamService.getTeamById(currMatch.getTeam1Id());
-        Team team2 = teamService.getTeamById(currMatch.getTeam2Id());
-        Team[] teamOrder = new Team[2];
+        final Team team1 = teamService.getTeamById(currMatch.getTeam1Id());
+        final Team team2 = teamService.getTeamById(currMatch.getTeam2Id());
+        final Team[] teamOrder = new Team[2];
 
         if (toss == 1) {
             teamOrder[0] = team1;
@@ -69,7 +69,7 @@ public class MatchServiceImpl implements MatchService{
     }
 
     public void playMatch(Match match) {
-        Team[] teamOrder = initiateMatch(match);
+        final Team[] teamOrder = initiateMatch(match);
         playInning(match, 1, teamOrder[0], teamOrder[1]);
         changeInning(match);
         playInning(match, 2, teamOrder[1], teamOrder[0]);
@@ -78,23 +78,24 @@ public class MatchServiceImpl implements MatchService{
         scoreboardService.printScoreboard(match.getScoreboard());
     }
 
-    public void playInning(Match currMatch, int inningNo, Team battingTeam, Team bowlingTeam) {
+    private void playInning(Match currMatch, int inningNo, Team battingTeam, Team bowlingTeam) {
         initiateInning(currMatch, inningNo, battingTeam, bowlingTeam);
         implementInning(inningNo, currMatch, battingTeam, bowlingTeam);
         scoreboardService.printPostInningStats(currMatch.getCurrInning());
         CricketUtils.printDottedLine();
     }
 
-    public void initiateInning(Match currMatch, int inningNo, Team battingTeam, Team bowlingTeam) {
-        Inning inning = scoreboardService.createInning(currMatch.getScoreboard(), inningNo, battingTeam, bowlingTeam);
+    private void initiateInning(Match currMatch, int inningNo, Team battingTeam, Team bowlingTeam) {
+        final Inning inning = scoreboardService
+                .createInning(currMatch.getScoreboard(), inningNo, battingTeam, bowlingTeam);
         currMatch.setCurrInning(inning);
-        Player[] openers = teamService.assignOpeners(battingTeam);
+        final Player[] openers = teamService.assignOpeners(battingTeam);
         currMatch.setCurrBatterOnStrike(openers[0]);
         currMatch.setCurrBatterOffStrike(openers[1]);
     }
 
-    public void implementInning(int inningNo, Match currMatch, Team battingTeam, Team bowlingTeam) {
-        Inning currInning = currMatch.getCurrInning();
+    private void implementInning(int inningNo, Match currMatch, Team battingTeam, Team bowlingTeam) {
+        final Inning currInning = currMatch.getCurrInning();
         for (int currOver = 0; currOver < currMatch.getTotalOvers(); currOver++) {
             Bowler currBowler = teamService.assignBowler(bowlingTeam, currOver);
             currMatch.setCurrBowler(currBowler);
@@ -107,12 +108,12 @@ public class MatchServiceImpl implements MatchService{
         }
     }
 
-    public void changeInning(Match match) {
+    private void changeInning(Match match) {
         scoreboardService.postInningUpdation(match.getScoreboard());
         updateMatchInstance(match);
     }
 
-    public void implementOver(Match currMatch, Team battingTeam, int currOver, int inningNo) {
+    private void implementOver(Match currMatch, Team battingTeam, int currOver, int inningNo) {
         Inning currInning = currMatch.getCurrInning();
         for (int currBall = 1; currBall <= 6; currBall++) {
             System.out.print("(" + currOver + "." + currBall + ") ");
@@ -125,7 +126,7 @@ public class MatchServiceImpl implements MatchService{
         }
     }
 
-    public void changeOver(Match currMatch, int overNo) {
+    private void changeOver(Match currMatch, int overNo) {
         Inning currInning = currMatch.getCurrInning();
         scoreboardService.updateInning(currInning, overNo, 0);
         changeStrike(currMatch);
@@ -135,12 +136,12 @@ public class MatchServiceImpl implements MatchService{
         scoreboardService.printPostOverStats(currInning, currBatters, currBowler);
     }
 
-    public int bowlBall(Match currMatch) {
-        Player currBatter = currMatch.getCurrBatterOnStrike();
+    private int bowlBall(Match currMatch) {
+        final Player currBatter = currMatch.getCurrBatterOnStrike();
         return playerService.playBall(currBatter);
     }
 
-    public void updateMatchAfterBall(Match currMatch, int ballOutcome, Team battingTeam) {
+    private void updateMatchAfterBall(Match currMatch, int ballOutcome, Team battingTeam) {
         Inning currInning = currMatch.getCurrInning();
         Player[] currBatters = {currMatch.getCurrBatterOnStrike(), currMatch.getCurrBatterOffStrike()};
         Bowler currBowler = currMatch.getCurrBowler();
@@ -158,7 +159,7 @@ public class MatchServiceImpl implements MatchService{
         }
     }
 
-    public boolean checkInningEnded(Match currMatch, int inningNo, int oversBowled, int ballsBowled) {
+    private boolean checkInningEnded(Match currMatch, int inningNo, int oversBowled, int ballsBowled) {
         Inning currInning = currMatch.getCurrInning();
         if (currInning.getWicketsFell() == Match.getTotalWickets()) {
             currMatch.setBattersNull();
@@ -181,42 +182,41 @@ public class MatchServiceImpl implements MatchService{
         return false;
     }
 
-    public boolean checkIfAllWicketsDown(Inning currInning) {
+    private boolean checkIfAllWicketsDown(Inning currInning) {
         return currInning.getWicketsFell() >= Match.getTotalWickets();
     }
 
-    public void changeStrike(Match currMatch) {
+    private void changeStrike(Match currMatch) {
         Player currBatter = currMatch.getCurrBatterOnStrike();
         currMatch.setCurrBatterOnStrike(currMatch.getCurrBatterOffStrike());
         currMatch.setCurrBatterOffStrike(currBatter);
     }
 
-    public void updateMatchInstance(Match currMatch) {
+    private void updateMatchInstance(Match currMatch) {
         matchRepo.save(currMatch);
     }
 
-    public void postMatchUpdation(Match currMatch, Team[] teams) {
+    private void postMatchUpdation(Match currMatch, Team[] teams) {
         calculateResults(currMatch);
         scoreboardService.storeScoreboardData(currMatch.getScoreboard(),teams);
         currMatch.setCurrInning(null);
         updateMatchInstance(currMatch);
     }
 
-    public void calculateResults(Match currMatch) {
+    private void calculateResults(Match currMatch) {
         Scoreboard scoreboard = currMatch.getScoreboard();
         Inning currInning = currMatch.getCurrInning();
         int target = scoreboard.getMatchTarget();
-        Team winner = null;
+        String winner = null;
         String matchResult = "";
         if (currInning.getRunsScored() >= target) {
-            winner = getTeam(currMatch, currInning.getBattingTeam());
+            winner = currInning.getBattingTeam();
             matchResult = currInning.getBattingTeam() + " won by "
                     + (Match.getTotalWickets() - currInning.getWicketsFell()) + " wickets "
                     + "from " + currInning.getBowlingTeam() + ".";
         }
-
         if (currInning.getRunsScored() < target - 1) {
-            winner = getTeam(currMatch, currInning.getBowlingTeam());
+            winner = currInning.getBowlingTeam();
             matchResult = currInning.getBowlingTeam() + " won by "
                     + (target - currInning.getRunsScored() - 1) + " runs "
                     + "from " + currInning.getBattingTeam() + ".";
@@ -229,39 +229,33 @@ public class MatchServiceImpl implements MatchService{
         currMatch.setWinner(winner);
     }
 
-    public void printResults(Match currMatch) {
+    private void printResults(Match currMatch) {
         System.out.println(currMatch.getMatchResult());
         CricketUtils.printDottedLine();
     }
 
-    public String obtainMatchDetails(String matchId) {
-        Match foundMatch = matchRepo.findById(matchId).orElseThrow(() -> new RuntimeException("Team Not found!"));
-        String matchDetails = scoreboardService.getMatchDetails(foundMatch.getScoreboard());
-        return matchDetails + "Result : " + foundMatch.getMatchResult();
+    public boolean checkIfMatchExists(String matchId){
+        return matchRepo.findById(matchId).isPresent();
     }
 
-    //todo think about this responsibility
-    private Team getTeam(Match currMatch, String teamName) {
-        Team team1 = teamService.getTeamById(currMatch.getTeam1Id());
-        if (Objects.equals(team1.getTeamName(), teamName)) {
-            return team1;
-        }
-        return teamService.getTeamById(currMatch.getTeam2Id());
+    public MatchRes obtainMatchDetails(String matchId) {
+        Match foundMatch = matchRepo.findById(matchId).orElse(null);
+        MatchRes matchRes = new MatchRes(foundMatch.getTotalOvers());
+        List<InningRes> inningsRes = scoreboardService.getMatchDetails(foundMatch.getScoreboard());
+        matchRes.setInning1(inningsRes.get(0));
+        matchRes.setInning2(inningsRes.get(1));
+        matchRes.setMatchResult(foundMatch.getMatchResult());
+        return matchRes;
     }
 
     public void deleteMatchData(String matchId){
-        Optional<Match> matchObj = matchRepo.findById(matchId);
-        if(matchObj.isPresent()){
-            Match match = matchObj.get();
-            deletePlayerStatsOfTeam(matchId,match.getTeam1Id());
-            deletePlayerStatsOfTeam(matchId,match.getTeam2Id());
-            matchRepo.deleteById(matchId);
-        } else {
-            throw new RuntimeException("Match not found!");
-        }
+        Match match = matchRepo.findById(matchId).orElse(null);
+        deletePlayerStatsOfTeam(matchId,match.getTeam1Id());
+        deletePlayerStatsOfTeam(matchId,match.getTeam2Id());
+        matchRepo.deleteById(matchId);
     }
 
-    public void deletePlayerStatsOfTeam(String matchId, String teamId){
+    private void deletePlayerStatsOfTeam(String matchId, String teamId){
         Team team = teamService.getTeamById(teamId);
         List<Player> teamPlayers = teamService.getPlayers(team);
         statsService.deleteMatchStatsFromPlayerStats(matchId,teamPlayers);

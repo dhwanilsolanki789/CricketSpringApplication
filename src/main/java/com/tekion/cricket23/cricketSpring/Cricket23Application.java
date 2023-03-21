@@ -9,10 +9,6 @@ public class Cricket23Application {
 
 	public static void main(String[] args) {
 		ApplicationContext applicationContext = SpringApplication.run(Cricket23Application.class, args);
-//		GameLauncher gameLauncher = applicationContext.getBean(GameLauncher.class);
-//		gameLauncher.launch();
-//		GameLauncher.launch();
-
 	}
 
 }

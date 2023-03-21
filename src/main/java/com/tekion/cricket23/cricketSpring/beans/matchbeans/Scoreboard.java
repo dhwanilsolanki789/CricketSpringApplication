@@ -14,20 +14,19 @@ public class Scoreboard {
         this.matchId = matchId;
     }
 
-    public void setFirstInning(Inning inning){
-        this.inning1 = inning;
-    }
-
-    public void setSecondInning(Inning inning) {
-        this.inning2 = inning;
-    }
-
     public Inning getInning(int inningNo) {
         if(inningNo == 1){
             return inning1;
         } else {
             return inning2;
         }
+    }
+
+    public void setFirstInning(Inning inning){
+        this.inning1 = inning;
+    }
+    public void setSecondInning(Inning inning) {
+        this.inning2 = inning;
     }
 
     public int getMatchTarget(){
@@ -39,5 +38,15 @@ public class Scoreboard {
 
     public String getMatchId() {
         return matchId;
+    }
+
+    @Override
+    public String toString() {
+        return "Scoreboard{" +
+                "id='" + id + '\'' +
+                ", matchId='" + matchId + '\'' +
+                ", inning1=" + inning1 +
+                ", inning2=" + inning2 +
+                '}';
     }
 }

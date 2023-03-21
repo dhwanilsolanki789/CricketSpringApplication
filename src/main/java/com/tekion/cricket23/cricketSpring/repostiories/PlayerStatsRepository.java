@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PlayerStatsRepository extends MongoRepository<PlayerStats,String> {
     PlayerStats findPlayerStatsByPlayerId(String playerId);
+    void deleteByPlayerId(String playerId);
 }

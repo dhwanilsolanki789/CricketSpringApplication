@@ -16,6 +16,7 @@ public class Match {
     private final int totalOvers;
     private Scoreboard scoreboard;
     private String matchResult;
+    private String winner;
 
     @Transient
     private static int TOTAL_WICKETS;
@@ -27,8 +28,6 @@ public class Match {
     private Bowler currBowler;
     @Transient
     private Inning currInning;
-    @Transient
-    private Team winner;
 
 
     public Match(String team1Id, String team2Id, int totalOvers){
@@ -92,10 +91,10 @@ public class Match {
         return scoreboard.getMatchTarget();
     }
 
-    public Team getWinner(){
+    public String getWinner(){
         return winner;
     }
-    public void setWinner(Team team){
+    public void setWinner(String team){
         winner = team;
     }
 
@@ -113,5 +112,17 @@ public class Match {
 
     public static int getTotalWickets(){
         return TOTAL_WICKETS;
+    }
+
+    @Override
+    public String toString() {
+        return "Match{" +
+                "matchId='" + matchId + '\'' +
+                ", team1Id='" + team1Id + '\'' +
+                ", team2Id='" + team2Id + '\'' +
+                ", totalOvers=" + totalOvers +
+                ", scoreboard=" + scoreboard +
+                ", matchResult='" + matchResult + '\'' +
+                '}';
     }
 }

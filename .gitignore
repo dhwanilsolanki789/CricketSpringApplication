@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .DS_Store
-src/main/java/com/tekion/cricket23/cricketjava
+src/main/java/com/tekion/cricket23/cricketjava/
 
 ### STS ###
 .apt_generated

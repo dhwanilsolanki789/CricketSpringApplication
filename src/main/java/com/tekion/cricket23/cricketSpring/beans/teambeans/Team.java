@@ -16,7 +16,6 @@ public class Team {
     private static final int PLAYER_COUNT = 11;
 
     public Team(){}
-
     public Team(String name, List<String> playerIds) {
         this.teamName = name;
         this.playerIds = playerIds;
@@ -38,5 +37,14 @@ public class Team {
     }
     public static int getPlayerCount() {
         return PLAYER_COUNT;
+    }
+
+    @Override
+    public String toString() {
+        return "Team{" +
+                "id='" + id + '\'' +
+                ", teamName='" + teamName + '\'' +
+                ", playerIds=" + playerIds +
+                '}';
     }
 }

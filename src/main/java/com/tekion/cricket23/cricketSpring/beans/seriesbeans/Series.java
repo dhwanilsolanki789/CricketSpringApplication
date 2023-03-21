@@ -1,6 +1,5 @@
 package com.tekion.cricket23.cricketSpring.beans.seriesbeans;
 
-import com.tekion.cricket23.cricketSpring.beans.teambeans.Team;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -63,10 +62,10 @@ public class Series {
         return team2;
     }
 
-    public void incrementTeamWins(Team winner){
-        if(Objects.equals(winner.getTeamName(), team1)){
+    public void incrementTeamWins(String winner){
+        if(Objects.equals(winner, team1)){
             team1Wins++;
-        } else {
+        } else if(Objects.equals(winner,team2)){
             team2Wins++;
         }
     }
@@ -81,11 +80,28 @@ public class Series {
     public void addMatch(MatchDao match){
         matches.add(match);
     }
+    public List<MatchDao> getMatches() {
+        return matches;
+    }
 
     public String getSeriesResult() {
         return seriesResult;
     }
     public void setSeriesResult(String seriesResult) {
         this.seriesResult = seriesResult;
+    }
+
+    @Override
+    public String toString() {
+        return "Series{" +
+                "id='" + id + '\'' +
+                ", team1Id='" + team1Id + '\'' +
+                ", team1='" + team1 + '\'' +
+                ", team2='" + team2 + '\'' +
+                ", team2Id='" + team2Id + '\'' +
+                ", totalMatches=" + totalMatches +
+                ", matches=" + matches +
+                ", seriesResult='" + seriesResult + '\'' +
+                '}';
     }
 }

@@ -4,6 +4,7 @@ public class MatchDao {
     private String matchId;
     private String matchResult;
 
+    public MatchDao(){}
     public MatchDao(String id, String result){
         this.matchId = id;
         this.matchResult = result;
@@ -15,5 +16,13 @@ public class MatchDao {
 
     public String getMatchResult() {
         return matchResult;
+    }
+
+    @Override
+    public String toString() {
+        return "MatchDao{" +
+                "matchId='" + matchId + '\'' +
+                ", matchResult='" + matchResult + '\'' +
+                '}';
     }
 }

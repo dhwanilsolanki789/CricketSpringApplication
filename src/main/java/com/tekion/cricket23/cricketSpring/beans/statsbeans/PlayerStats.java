@@ -48,4 +48,14 @@ public class PlayerStats {
     public void removeStatsOfAMatch(String matchId){
         statsInMatches.remove(matchId);
     }
+
+    @Override
+    public String toString() {
+        return "PlayerStats{" +
+                "id='" + id + '\'' +
+                ", playerId='" + playerId + '\'' +
+                ", playerName='" + playerName + '\'' +
+                ", statsInMatches=" + statsInMatches +
+                '}';
+    }
 }
